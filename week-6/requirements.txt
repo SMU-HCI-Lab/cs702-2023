@@ -5,5 +5,8 @@ graphviz
 matplotlib
 numpy
 numpyro
+pyaudio
 pygame==2.1.2
 pyomo
+pyqtgraph
+PySide6

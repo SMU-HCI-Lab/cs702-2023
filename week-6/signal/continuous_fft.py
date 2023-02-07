@@ -1,9 +1,11 @@
 # conda activate cs702-computational-interaction
 import logging
 
+import PySide6
 import numpy as np
-from pyqtgraph.Qt import QtGui, QtCore
+from pyqtgraph.Qt import QtWidgets, QtCore
 import pyqtgraph as pg
+
 
 import struct
 import pyaudio
@@ -22,8 +24,8 @@ class AudioStream(object):
         # pyqtgraph stuff
         pg.setConfigOptions(antialias=True)
         self.traces = dict()
-        self.app = QtGui.QApplication(sys.argv)
-        self.win = pg.GraphicsWindow(title='Spectrum Analyzer')
+        self.app = QtWidgets.QApplication(sys.argv)
+        self.win = pg.GraphicsWidget()
         self.win.setWindowTitle('Spectrum Analyzer')
         self.win.setGeometry(5, 115, 1910, 1070)
 
@@ -70,7 +72,7 @@ class AudioStream(object):
 
     def start(self):
         if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
-            QtGui.QApplication.instance().exec_()
+            QtWidgets.QApplication.instance().exec_()
 
     def set_plotdata(self, name, data_x, data_y):
         if name in self.traces:
@@ -92,7 +94,7 @@ class AudioStream(object):
         logging.info(wf_data)
         wf_data = struct.unpack(str(2 * self.CHUNK) + 'B', wf_data)
         wf_data = np.array(wf_data, dtype='b')[::2] + 128
-        self.set_plotdata(name='waveform', data_x=self.x, data_y=wf_data,)
+        self.set_plotdata(name='waveform', data_x=self.x, data_y=wf_data, )
 
         sp_data = fft(np.array(wf_data, dtype='int8') - 128)
         sp_data = np.abs(sp_data[0:int(self.CHUNK / 2)]
@@ -107,6 +109,5 @@ class AudioStream(object):
 
 
 if __name__ == '__main__':
-
     audio_app = AudioStream()
     audio_app.animation()
