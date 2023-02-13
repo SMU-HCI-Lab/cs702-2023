@@ -2,6 +2,7 @@ altair
 arviz
 jupyter
 graphviz
+librosa
 matplotlib
 numpy
 numpyro

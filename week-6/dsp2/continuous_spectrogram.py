@@ -3,7 +3,6 @@ import pyqtgraph as pg
 import pyaudio
 from pyqtgraph.Qt import QtCore, QtWidgets
 
-# https://amyboyle.ninja/Pyqtgraph-live-spectrogram
 
 FS = 44100  # Hz
 CHUNKSZ = 1024  # samples
