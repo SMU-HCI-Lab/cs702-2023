@@ -1,15 +1,13 @@
-from PySide6.QtWidgets import QApplication, QMainWindow
+import numpy as np
 import pyaudio
 import pyqtgraph as pg
 import sys
-import numpy as np
-
-import sys
-import logging
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+from PySide6.QtWidgets import QApplication, QMainWindow
+from scipy.fftpack import fft
 
 
-FS = 44100  # Hz
+CHANNELS = 1
+RATE = 44100  # Hz
 CHUNKSZ = 1024  # samples
 
 
@@ -18,14 +16,13 @@ class MicrophoneRecorder():
         self.signal = signal
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=pyaudio.paInt16,
-                                  channels=1,
-                                  rate=FS,
+                                  channels=CHANNELS,
+                                  rate=RATE,
                                   input=True,
                                   frames_per_buffer=CHUNKSZ)
 
     def read(self):
         data = self.stream.read(CHUNKSZ)
-        # y = np.fromstring(data_fashionmnist, 'int16')
         y = np.frombuffer(data, 'int16')
         self.signal.emit(y)
 
@@ -52,21 +49,21 @@ class MainWindow(QMainWindow):
 
         self.spectrum = self.win.addPlot(title='Spectrum', row=2, col=1)
         self.spectrum.setLogMode(x=True, y=True)
-        self.spectrum.setYRange(-4, 4, padding=0)
-        self.spectrum.setXRange(np.log10(20), np.log10(FS / 2), padding=0.005)
+        self.spectrum.setYRange(0, 6, padding=0)
+        self.spectrum.setXRange(np.log10(20), np.log10(RATE / 2), padding=0.005)
         self.spectrum_plot = self.spectrum.plot(pen='m', width=3)
 
     def draw(self, chunk):
         x = np.arange(0, 2 * CHUNKSZ, 2)
         y = chunk - np.min(chunk)
-        y = y / np.max(y) * 255
+        if np.max(y) > 0:
+            y = y / np.max(y) * 255
         self.waveform_plot.setData(x, y)
 
-        f = np.linspace(0, FS / 2, int(CHUNKSZ / 2))
+        f = np.linspace(0, RATE / 2, int(CHUNKSZ / 2))
         window =  np.hanning(CHUNKSZ)
-        spec = np.fft.rfft(chunk * window) / CHUNKSZ
-        psd = abs(spec)
-        psd = psd[:int(CHUNKSZ / 2)]
+        spec = fft(chunk * window)
+        psd = abs(spec)[:int(CHUNKSZ / 2)]
         self.spectrum_plot.setData(f, psd)
 
 
@@ -78,7 +75,7 @@ if __name__ == "__main__":
 
     mic = MicrophoneRecorder(w.read_collected)
     # time (seconds) between reads
-    interval = FS / CHUNKSZ
+    interval = RATE / CHUNKSZ
     t = pg.Qt.QtCore.QTimer()
     t.timeout.connect(mic.read)
     t.start(1000 / interval)  # QTimer takes ms
