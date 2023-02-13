@@ -45,13 +45,13 @@ class MainWindow(QMainWindow):
         self.waveform = self.win.addPlot(title='Waveform', row=1, col=1)
         self.waveform.setYRange(0, 255, padding=0)
         self.waveform.setXRange(0, 2 * CHUNKSZ, padding=0.005)
-        self.waveform_plot = self.waveform.plot(pen='c', width=3)
+        self.waveform_plot = self.waveform.plot(pen='y', width=3)
 
         self.spectrum = self.win.addPlot(title='Spectrum', row=2, col=1)
         self.spectrum.setLogMode(x=True, y=True)
         self.spectrum.setYRange(0, 6, padding=0)
         self.spectrum.setXRange(np.log10(20), np.log10(RATE / 2), padding=0.005)
-        self.spectrum_plot = self.spectrum.plot(pen='m', width=3)
+        self.spectrum_plot = self.spectrum.plot(pen='y', width=3)
 
     def draw(self, chunk):
         x = np.arange(0, 2 * CHUNKSZ, 2)
