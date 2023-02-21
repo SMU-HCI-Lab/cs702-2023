@@ -7,3 +7,4 @@ numpy
 numpyro
 pygame==2.1.2
 pyomo
+scikit-image
